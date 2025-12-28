@@ -27,3 +27,39 @@ export const SideBarOptions = [
     path: "/billing",
   },
 ];
+
+import {
+  Code2,
+  User,
+  Briefcase,
+  Puzzle,
+  Users,
+} from "lucide-react";
+
+export const InterviewType = [
+  {
+    id: "technical",
+    title: "Technical",
+    icon: Code2,
+  },
+  {
+    id: "behavioral",
+    title: "Behavioral",
+    icon: User,
+  },
+  {
+    id: "experience",
+    title: "Experience",
+    icon: Briefcase,
+  },
+  {
+    id: "problem-solving",
+    title: "Problem Solving",
+    icon: Puzzle,
+  },
+  {
+    id: "leadership",
+    title: "Leadership",
+    icon: Users,
+  },
+];

@@ -1,39 +1,30 @@
-"use client";
+import { Phone, Video } from "lucide-react";
+import Link from "next/link";
+import React from "react";
 
-import { Video, Phone } from "lucide-react";
-
-export default function CreateOptions() {
+function CreateOptions() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      
-      <div className="bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex gap-4">
-        <div className="h-10 w-10 rounded-full bg-blue-100 text-primary flex items-center justify-center">
-          <Video size={20} />
-        </div>
-        <div>
-          <h3 className="font-semibold">
-            Create New Interview
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Create AI interviews and schedule them with candidates
-          </p>
-        </div>
-      </div>
+    <div className="grid grid-cols-2 gap-5 mt-8">
+      <Link
+        href="/dashboard/create-interview"
+        className="border border-gray-200 rounded-lg p-5 hover:shadow-md cursor-pointer"
+      >
+        <Video className="p-3 text-primary bg-blue-50 rounded-lg h-12 w-12" />
+        <h2 className="font-bold mt-4">Create New Interview</h2>
+        <p className="text-gray-500">
+          Create AI Interview and schedule with candidates
+        </p>
+      </Link>
 
-      <div className="bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex gap-4">
-        <div className="h-10 w-10 rounded-full bg-blue-100 text-primary flex items-center justify-center">
-          <Phone size={20} />
-        </div>
-        <div>
-          <h3 className="font-semibold">
-            Create Phone Screening Call
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Schedule phone screening call with candidates
-          </p>
-        </div>
+      <div className="border border-gray-200 rounded-lg p-5 hover:shadow-md cursor-pointer">
+        <Phone className="p-3 text-primary bg-blue-50 rounded-lg h-12 w-12" />
+        <h2 className="font-bold mt-4">Create Phone Screening</h2>
+        <p className="text-gray-500">
+          Schedule phone screening with candidates
+        </p>
       </div>
-
     </div>
   );
 }
+
+export default CreateOptions;
