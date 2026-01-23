@@ -8,6 +8,7 @@ export default function WelcomeContainer() {
   return (
     <div className="bg-white rounded-xl p-5 shadow-sm flex justify-between items-center">
       <div>
+       
         <h1 className="text-lg font-semibold">
           Welcome Back, {user?.name}
         </h1>
