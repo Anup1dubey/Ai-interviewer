@@ -6,7 +6,7 @@ export default function WelcomeContainer() {
   const { user } = useUser();
 
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm flex justify-between items-center">
+    <div className=" w-full bg-white rounded-xl p-5 shadow-sm flex justify-between items-center">
       <div>
        
         <h1 className="text-lg font-semibold">

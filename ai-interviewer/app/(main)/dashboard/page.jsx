@@ -6,7 +6,7 @@ import LatestInterviewsList from "./components/LatestInterviewsList";
 
 export default function Dashboard() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       <WelcomeContainer />
 
       <h2 className="text-lg font-semibold">
