@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { InterviewType } from "@/app/services/Constants";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -15,41 +14,62 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-function FormContainer() {
-  const [selectedType, setSelectedType] = useState(null);
-  const [duration, setDuration] = useState("");
+function FormContainer({ onHandleInputChange }) {
+  const [interviewType, setInterviewType] = useState([]);
   const [jobTitle, setJobTitle] = useState("");
   const [jobDesc, setJobDesc] = useState("");
+  const [duration, setDuration] = useState("");
+
+  useEffect(() => {
+    if (interviewType.length > 0) {
+      onHandleInputChange("type", interviewType);
+    }
+  }, [interviewType]);
 
   return (
     <div className="mt-7">
+
+      {/* Job Position */}
       <div>
         <h2 className="text-sm font-medium">Job Position</h2>
         <Input
           placeholder="e.g. Full Stack Developer"
           className="mt-2"
           value={jobTitle}
-          onChange={(e) => setJobTitle(e.target.value)}
+          onChange={(event) => {
+            setJobTitle(event.target.value);
+            onHandleInputChange("jobPosition", event.target.value);
+          }}
         />
       </div>
 
+      {/* Job Description */}
       <div className="mt-5">
         <h2 className="text-sm font-medium">Job Description</h2>
         <Textarea
-          placeholder="Enter details job description"
+          placeholder="Enter job description"
           className="h-[200px] mt-2"
           value={jobDesc}
-          onChange={(e) => setJobDesc(e.target.value)}
+          onChange={(event) => {
+            setJobDesc(event.target.value);
+            onHandleInputChange("jobDescription", event.target.value);
+          }}
         />
       </div>
 
+      {/* Interview Duration */}
       <div className="mt-5">
         <h2 className="text-sm font-medium">Interview Duration</h2>
-        <Select onValueChange={(value) => setDuration(value)}>
+        <Select
+          onValueChange={(value) => {
+            setDuration(value);
+            onHandleInputChange("duration", value);
+          }}
+        >
           <SelectTrigger className="w-full mt-2">
             <SelectValue placeholder="Select Duration" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white z-50 shadow-lg border">
             <SelectItem value="5">5 Min</SelectItem>
             <SelectItem value="15">15 Min</SelectItem>
             <SelectItem value="30">30 Min</SelectItem>
@@ -59,6 +79,7 @@ function FormContainer() {
         </Select>
       </div>
 
+      {/* Interview Type */}
       <div className="mt-5">
         <h2 className="text-sm font-medium">Interview Type</h2>
 
@@ -66,19 +87,20 @@ function FormContainer() {
           {InterviewType.map((type, index) => (
             <div
               key={index}
-              onClick={() => setSelectedType(type.id)}
-              className={`
-                flex items-center gap-2
-                p-1 px-4
-                bg-white border border-gray-300
-                rounded-2xl cursor-pointer
-                hover:bg-secondary transition-all
-                ${
-                  selectedType === type.id
-                    ? "bg-blue-50 border-primary text-primary"
-                    : ""
-                }
-              `}
+              className={`flex items-center gap-2 p-1 px-4 rounded-2xl cursor-pointer transition-all
+  ${interviewType.includes(type.name)
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white border-gray-300 hover:bg-gray-100"
+                }`}
+
+              onClick={() =>
+                setInterviewType((prev) =>
+                  prev.includes(type.name)
+                    ? prev.filter((item) => item !== type.name) // remove
+                    : [...prev, type.name] // add
+                )
+              }
+
             >
               <type.icon className="h-4 w-4" />
               <span className="text-sm">{type.title}</span>
@@ -87,9 +109,10 @@ function FormContainer() {
         </div>
       </div>
 
+      {/* Button */}
       <div className="mt-7 flex justify-end">
         <Button
-          disabled={!jobTitle || !jobDesc || !duration || !selectedType}
+          disabled={!jobTitle || !jobDesc || !duration || interviewType.length === 0}
           className="gap-2"
         >
           Generate Question <ArrowRight className="h-4 w-4" />
