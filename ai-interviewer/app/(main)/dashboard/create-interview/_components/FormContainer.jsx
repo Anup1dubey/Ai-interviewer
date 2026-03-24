@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Item } from "@radix-ui/react-select";
 
 function FormContainer({ onHandleInputChange }) {
   const [interviewType, setInterviewType] = useState([]);
@@ -21,10 +22,21 @@ function FormContainer({ onHandleInputChange }) {
   const [duration, setDuration] = useState("");
 
   useEffect(() => {
-    if (interviewType.length > 0) {
+    if (interviewType) {
       onHandleInputChange("type", interviewType);
     }
   }, [interviewType]);
+
+  const AddInterviewType=(type)=>{
+    const data = interviewType.includes(type); 
+    if(!data){
+      setInterviewType(prev=>[...prev,type])  
+
+    }else{
+      const result = interviewType.filter(Item=>Item!==type);  
+      setInterviewType(result);
+    }
+  }
 
   return (
     <div className="mt-7">
@@ -88,17 +100,13 @@ function FormContainer({ onHandleInputChange }) {
             <div
               key={index}
               className={`flex items-center gap-2 p-1 px-4 rounded-2xl cursor-pointer transition-all
-  ${interviewType.includes(type.name)
+  ${interviewType.includes(type.title)
                   ? "bg-blue-600 text-white border-blue-600"
                   : "bg-white border-gray-300 hover:bg-gray-100"
                 }`}
 
               onClick={() =>
-                setInterviewType((prev) =>
-                  prev.includes(type.name)
-                    ? prev.filter((item) => item !== type.name) // remove
-                    : [...prev, type.name] // add
-                )
+                  AddInterviewType(type.title)
               }
 
             >
@@ -109,7 +117,6 @@ function FormContainer({ onHandleInputChange }) {
         </div>
       </div>
 
-      {/* Button */}
       <div className="mt-7 flex justify-end">
         <Button
           disabled={!jobTitle || !jobDesc || !duration || interviewType.length === 0}
