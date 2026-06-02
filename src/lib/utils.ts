@@ -21,7 +21,11 @@ export function formatDuration(minutes: number): string {
 }
 
 export function generateShareableLink(interviewId: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : 'http://localhost:3000');
   return `${baseUrl}/interview/${interviewId}`;
 }
 
