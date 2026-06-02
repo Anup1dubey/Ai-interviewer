@@ -68,7 +68,8 @@ export async function getSessionsByInterview(interviewId: string): Promise<Inter
 
 export async function createSession(
   interviewId: string,
-  candidateName: string
+  candidateName: string,
+  resumeText?: string
 ): Promise<InterviewSession> {
   const supabase = await createServiceClient();
 
@@ -78,6 +79,7 @@ export async function createSession(
       interview_id: interviewId,
       candidate_name: candidateName,
       status: 'pending',
+      ...(resumeText ? { resume_text: resumeText } : {}),
     })
     .select()
     .single();

@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getInterviewById } from '@/services/interview.service';
+import { getInterviewById, getSessionById } from '@/services/interview.service';
 import { InterviewRoom } from '@/components/interview/InterviewRoom';
 
 interface PageProps {
@@ -13,14 +13,19 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
 
   if (!sessionId || !name) notFound();
 
-  const interview = await getInterviewById(id);
-  if (!interview) notFound();
+  const [interview, session] = await Promise.all([
+    getInterviewById(id),
+    getSessionById(sessionId),
+  ]);
+
+  if (!interview || !session) notFound();
 
   return (
     <InterviewRoom
       interview={interview}
       sessionId={sessionId}
       candidateName={decodeURIComponent(name)}
+      resumeText={session.resume_text}
     />
   );
 }

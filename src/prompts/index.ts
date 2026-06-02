@@ -33,6 +33,28 @@ Format:
 🎯 The goal is to create a structured, relevant, and time-optimized interview plan for a {{jobTitle}} role.
 `;
 
+export const RESUME_PROFILE_PROMPT = `
+You are an expert recruiter analyzing a candidate's resume.
+
+Extract structured information from the following resume text and return it as JSON.
+
+RESUME TEXT:
+{{resumeText}}
+
+RETURN STRICT JSON ONLY. No markdown, no explanation.
+
+Format:
+{
+  "profile": {
+    "skills": ["skill1", "skill2"],
+    "experience": ["Company A - Role - Duration", "Company B - Role - Duration"],
+    "projects": ["Project name: brief description"],
+    "education": ["Degree, Institution, Year"],
+    "summary": "2-3 sentence summary of the candidate's background"
+  }
+}
+`;
+
 export const VOICE_INTERVIEW_PROMPT = `
 You are an AI technical interviewer conducting a live voice interview.
 
@@ -40,6 +62,7 @@ INTERVIEW CONTEXT:
 - Candidate Name: {{candidateName}}
 - Job Role: {{jobRole}}
 - Experience Level: {{experienceLevel}}
+{{resumeSection}}
 
 INTERVIEW QUESTIONS:
 {{questions}}
@@ -79,6 +102,7 @@ Analyze this interview transcript and provide a comprehensive evaluation.
 
 JOB ROLE: {{jobRole}}
 EXPERIENCE LEVEL: {{experienceLevel}}
+{{resumeSection}}
 
 TRANSCRIPT:
 {{transcript}}
@@ -90,6 +114,7 @@ Evaluate the candidate on:
 4. Confidence - assertiveness, handling of tough questions
 
 Be objective and fair. Score on a scale of 0-100.
+{{resumeInstruction}}
 
 RETURN STRICT JSON ONLY. No markdown, no explanation outside the JSON.
 

@@ -35,6 +35,7 @@ export interface InterviewSession {
   ended_at: string | null;
   overall_score: number | null;
   recommendation: string | null;
+  resume_text: string | null;
   created_at: string;
   interview?: Interview;
 }
@@ -93,4 +94,12 @@ export interface VapiMessage {
   role?: 'assistant' | 'user';
   transcript?: string;
   transcriptType?: string;
+}
+
+export interface ResumeProfile {
+  skills: string[];
+  experience: string[];
+  projects: string[];
+  education: string[];
+  summary: string;
 }

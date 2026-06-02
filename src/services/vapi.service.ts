@@ -6,6 +6,7 @@ interface BuildAssistantParams {
   jobRole: string;
   experienceLevel: ExperienceLevel;
   questions: Question[];
+  resumeText?: string | null;
 }
 
 export function buildVapiAssistantConfig(params: BuildAssistantParams) {
@@ -13,10 +14,15 @@ export function buildVapiAssistantConfig(params: BuildAssistantParams) {
     .map((q, i) => `${i + 1}. [${q.type.toUpperCase()}] ${q.question}`)
     .join('\n');
 
+  const resumeSection = params.resumeText
+    ? `\nCANDIDATE BACKGROUND (use this to personalize questions):\n${params.resumeText}`
+    : '';
+
   const systemPrompt = VOICE_INTERVIEW_PROMPT
     .replace('{{candidateName}}', params.candidateName)
     .replace('{{jobRole}}', params.jobRole)
     .replace('{{experienceLevel}}', params.experienceLevel)
+    .replace('{{resumeSection}}', resumeSection)
     .replace('{{questions}}', questionsText);
 
   return {

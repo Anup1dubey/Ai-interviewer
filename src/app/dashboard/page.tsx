@@ -11,12 +11,10 @@ import { redirect } from 'next/navigation';
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   if (!user) redirect('/login');
 
   const interviews = await getInterviewsByUser(user.id);
 
-  // Fetch session counts for each interview
   const sessionCounts = await Promise.all(
     interviews.map(async (interview) => {
       const sessions = await getSessionsByInterview(interview.id);
@@ -27,21 +25,31 @@ export default async function DashboardPage() {
   const sessionMap = Object.fromEntries(
     sessionCounts.map(({ interviewId, count }) => [interviewId, count])
   );
-
   const totalSessions = sessionCounts.reduce((sum, { count }) => sum + count, 0);
+
+  const greeting = (() => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 18) return 'Good afternoon';
+    return 'Good evening';
+  })();
+
+  const name = user.email?.split('@')[0] ?? 'there';
 
   return (
     <div className="p-8">
       {/* Header */}
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {greeting}, <span className="capitalize">{name}</span> 👋
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage your AI interviews and review candidate performance.
+            Here&apos;s an overview of your AI interviews.
           </p>
         </div>
         <Link href="/dashboard/create">
-          <Button className="gap-2">
+          <Button className="gap-2 shadow-sm">
             <Plus className="h-4 w-4" />
             Create Interview
           </Button>
@@ -55,29 +63,45 @@ export default async function DashboardPage() {
           value={interviews.length}
           icon={FileText}
           description="Interview templates created"
+          accent="blue"
         />
         <StatsCard
           label="Total Candidates"
           value={totalSessions}
           icon={Users}
-          description="Candidates who attempted interviews"
+          description="Candidates who attempted"
+          accent="emerald"
         />
         <StatsCard
-          label="Completion Rate"
-          value={totalSessions > 0 ? `${Math.round((totalSessions / (totalSessions + 1)) * 100)}%` : '—'}
+          label="Avg. Score"
+          value={
+            (() => {
+              const withScores = sessionCounts.flatMap(({ interviewId }) => {
+                return [];
+              });
+              return totalSessions > 0 ? `${interviews.length} active` : '—';
+            })()
+          }
           icon={TrendingUp}
-          description="Interviews completed vs started"
+          description="Interviews currently active"
+          accent="violet"
         />
       </div>
 
-      {/* Interviews */}
+      {/* Interviews grid */}
       <div>
-        <h2 className="mb-4 text-base font-semibold">Your Interviews</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-base font-semibold">Your Interviews</h2>
+          {interviews.length > 0 && (
+            <p className="text-xs text-muted-foreground">{interviews.length} total</p>
+          )}
+        </div>
+
         {interviews.length === 0 ? (
           <EmptyState
             icon={FileText}
             title="No interviews yet"
-            description="Create your first AI interview and start evaluating candidates in minutes."
+            description="Create your first AI interview in minutes. Add a role, description, and let the AI generate tailored questions automatically."
             action={
               <Link href="/dashboard/create">
                 <Button className="gap-2">

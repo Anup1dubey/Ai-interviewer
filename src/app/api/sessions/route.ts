@@ -1,15 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSession, updateSessionStatus, getSessionById } from '@/services/interview.service';
+import { z } from 'zod';
+import { createSession, updateSessionStatus, getSessionById, getInterviewById } from '@/services/interview.service';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+
+const createSessionSchema = z.object({
+  interviewId: z.string().min(1, 'Interview ID required'),
+  candidateName: z.string().min(2, 'Name must be at least 2 characters').max(100),
+  resume_text: z.string().max(20000).optional(),
+});
+
+const updateSessionSchema = z.object({
+  sessionId: z.string().min(1),
+  status: z.enum(['in_progress', 'completed']),
+  overall_score: z.number().min(0).max(100).optional(),
+  recommendation: z.string().optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const { interviewId, candidateName } = await request.json();
-
-    if (!interviewId || !candidateName) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const ip = getClientIp(request);
+    const { allowed } = checkRateLimit(`session:${ip}`, 20, 60_000);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
-    const session = await createSession(interviewId, candidateName);
+    const body = await request.json();
+    const parsed = createSessionSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
+    }
+
+    const { interviewId, candidateName, resume_text } = parsed.data;
+
+    const interview = await getInterviewById(interviewId);
+    if (!interview) {
+      return NextResponse.json({ error: 'Interview not found' }, { status: 404 });
+    }
+
+    const session = await createSession(interviewId, candidateName, resume_text);
     return NextResponse.json({ session, sessionId: session.id });
   } catch (error) {
     console.error('Create session error:', error);
@@ -19,11 +47,13 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const { sessionId, status, overall_score, recommendation } = await request.json();
-
-    if (!sessionId || !status) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const body = await request.json();
+    const parsed = updateSessionSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
     }
+
+    const { sessionId, status, overall_score, recommendation } = parsed.data;
 
     const extras: Record<string, string | number> = {};
     if (status === 'in_progress') extras.started_at = new Date().toISOString();
@@ -45,7 +75,6 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get('sessionId');
-
     if (!sessionId) {
       return NextResponse.json({ error: 'Session ID required' }, { status: 400 });
     }
